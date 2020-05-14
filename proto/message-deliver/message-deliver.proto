@@ -1,0 +1,11 @@
+syntax = "proto3";
+package message_deliver;
+
+service MessageDeliver {
+  rpc MessageReceived(MessageReceivedRequest) returns (MessageReceivedResponse) {}
+}
+
+message MessageReceivedRequest {}
+
+message MessageReceivedResponse {}
+
