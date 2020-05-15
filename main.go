@@ -9,7 +9,7 @@ import (
 
 	"github.com/mikudos/mikudos_message_deliver/config"
 	"github.com/mikudos/mikudos_message_deliver/handler"
-
+	pb "github.com/mikudos/mikudos_message_deliver/proto/message-deliver"
 	"google.golang.org/grpc"
 )
 
@@ -26,8 +26,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()                                  //新建gRPC实例
-	pb.RegisterScheduleServiceServer(s, &handler.Server{}) //在gRPC服务器注册服务实现
+	s := grpc.NewServer()                                    //新建gRPC实例
+	pb.RegisterMessageDeliverServer(s, handler.InitServer()) //在gRPC服务器注册服务实现
 	log.Println(fmt.Sprintf("server start at port: %d", port))
 	if err := s.Serve(lis); err != nil { //Serve()阻塞等待
 		log.Fatalf("failed to serve: %v", err)
