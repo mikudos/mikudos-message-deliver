@@ -11,22 +11,18 @@ import (
 type Server struct {
 	pb.MessageDeliverServer
 	DelaySeconds int
+	deleteChan   chan *pb.MessageReceivedRequest
 }
 
 // InitServer InitServer
 func InitServer() *Server {
-	return &Server{DelaySeconds: config.RuntimeViper.GetInt("delaySeconds")}
+	server := Server{DelaySeconds: config.RuntimeViper.GetInt("delaySeconds"), deleteChan: make(chan *pb.MessageReceivedRequest)}
+	go server.handleDelChan()
+	return &server
 }
 
 // MessageReceived 新建聚合，返回聚合Id
 func (s *Server) MessageReceived(ctx context.Context, req *pb.MessageReceivedRequest) (*pb.MessageReceivedResponse, error) {
-	// stmt, _ := db.Db.Prepare(`INSERT INTO aggregate (aggregate_type, data) VALUES (?, ?)`)
-	// defer stmt.Close()
-	// ret, err := stmt.Exec(req.GetAggregateType(), req.GetData())
-	// if err != nil {
-	// 	fmt.Printf("insert data error: %v\n", err)
-	// 	return nil, err
-	// }
-	// LastInsertId, _ := ret.LastInsertId()
+	go s.waitAndPushToDelete(req)
 	return &pb.MessageReceivedResponse{}, nil
 }

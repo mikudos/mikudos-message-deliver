@@ -2,10 +2,13 @@ syntax = "proto3";
 package message_deliver;
 
 service MessageDeliver {
-  rpc MessageReceived(MessageReceivedRequest) returns (MessageReceivedResponse) {}
+  rpc MessageReceived(MessageReceivedRequest)
+      returns (MessageReceivedResponse) {}
 }
 
-message MessageReceivedRequest {}
+message MessageReceivedRequest {
+  string channelId = 1;
+  int64 msgId = 2;
+}
 
-message MessageReceivedResponse {}
-
+message MessageReceivedResponse { bool result = 1; }
