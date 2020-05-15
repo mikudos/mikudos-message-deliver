@@ -2,8 +2,7 @@ package handler
 
 import (
 	"context"
-	"fmt"
-	"github.com/mikudos/mikudos_message_deliver/db"
+
 	pb "github.com/mikudos/mikudos_message_deliver/proto/message-deliver"
 )
 
@@ -13,27 +12,14 @@ type Server struct {
 }
 
 // CreateAggregate 新建聚合，返回聚合Id
-func (s *Server) CreateAggregate(ctx context.Context, req *pb.CreateAggregateRequest) (*pb.CreateAggregateResponse, error) {
-	stmt, _ := db.Db.Prepare(`INSERT INTO aggregate (aggregate_type, data) VALUES (?, ?)`)
-	defer stmt.Close()
-	ret, err := stmt.Exec(req.GetAggregateType(), req.GetData())
-	if err != nil {
-		fmt.Printf("insert data error: %v\n", err)
-		return nil, err
-	}
-	LastInsertId, _ := ret.LastInsertId()
-	return &pb.CreateAggregateResponse{Id: LastInsertId}, nil
-}
-
-// CreateEvent 新建Event的方法，需要提供聚合Id
-func (s *Server) CreateEvent(ctx context.Context, req *pb.CreateEventRequest) (*pb.CreateEventResponse, error) {
-	stmt, _ := db.Db.Prepare(`INSERT INTO event (aggregate_id, event_type, data) VALUES (?, ?, ?)`)
-	defer stmt.Close()
-	ret, err := stmt.Exec(req.GetAggregateId(), req.GetEventType(), req.GetData())
-	if err != nil {
-		fmt.Printf("insert data error: %v\n", err)
-		return nil, err
-	}
-	LastInsertId, _ := ret.LastInsertId()
-	return &pb.CreateEventResponse{EventId: LastInsertId}, nil
+func (s *Server) MessageReceived(ctx context.Context, req *pb.MessageReceivedRequest) (*pb.MessageReceivedResponse, error) {
+	// stmt, _ := db.Db.Prepare(`INSERT INTO aggregate (aggregate_type, data) VALUES (?, ?)`)
+	// defer stmt.Close()
+	// ret, err := stmt.Exec(req.GetAggregateType(), req.GetData())
+	// if err != nil {
+	// 	fmt.Printf("insert data error: %v\n", err)
+	// 	return nil, err
+	// }
+	// LastInsertId, _ := ret.LastInsertId()
+	return &pb.MessageReceivedResponse{}, nil
 }

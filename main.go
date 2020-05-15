@@ -7,8 +7,6 @@ import (
 	"os"
 	"strconv"
 
-	pb "github.com/mikudos/mikudos_message_deliver/proto/schedule"
-
 	"github.com/mikudos/mikudos_message_deliver/config"
 	"github.com/mikudos/mikudos_message_deliver/handler"
 
