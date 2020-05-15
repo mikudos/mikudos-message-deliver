@@ -10,7 +10,7 @@ update-proto:
 .PHONY: proto
 proto:
 	protoc --proto_path=${GOPATH}/src:. --go_out=plugins=grpc:. proto/message-deliver/*.proto
-	
+	protoc --proto_path=${GOPATH}/src:. --go_out=plugins=grpc:. proto/message-pusher/*.proto
 
 .PHONY: build
 build: proto

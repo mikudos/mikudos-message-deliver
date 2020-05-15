@@ -1,2 +1,4 @@
 port: 50051
 delaySeconds: 60
+grscClients:
+  message_pusher: "mikudos_message-pusher:50051"

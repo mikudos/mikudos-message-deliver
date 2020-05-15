@@ -6,24 +6,24 @@ import (
 	"log"
 	"time"
 
-	"github.com/robfig/cron/v3"
-
 	"github.com/mikudos/mikudos_message_deliver/config"
-	pb "github.com/mikudos/mikudos_message_deliver/proto/ai"
-	"github.com/mikudos/mikudos_message_deliver/schedule"
+	pb "github.com/mikudos/mikudos_message_deliver/proto/message-pusher"
 	"google.golang.org/grpc"
 )
 
 var (
-	conns     = make(map[string]*grpc.ClientConn)
-	clients   = make(map[string]pb.AiServiceClient)
-	err       error
-	callIndex = 1
+	conns               = make(map[string]*grpc.ClientConn)
+	messagePusherClient pb.MessagePusherClient
+	err                 error
+	callIndex           = 1
 )
+
+// MessagePusherServiceName MessagePusherServiceName
+const MessagePusherServiceName = "message_pusher"
 
 func init() {
 	log.Println("Init all grpc client: ai, learn, users, messages")
-	setUpClientConn("ai")
+	setUpClientConn(MessagePusherServiceName)
 }
 
 func setUpClientConn(connName string) {
@@ -37,44 +37,30 @@ func setUpClientConn(connName string) {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	clients[connName] = pb.NewAiServiceClient(conns[connName])
+	messagePusherClient = pb.NewMessagePusherClient(conns[connName])
 }
 
-// AiService AiService
-type AiService struct {
-	baseService
-	jobID cron.EntryID
+// MessagePusherService MessagePusherService
+type MessagePusherService struct {
+	RemoveRequest *pb.DeliverRemoveRequest
 }
 
-type baseService struct {
-	HelloRequest *pb.HelloRequest
-}
-
-// ClientFunc ClientFunc
-func (ai *AiService) ClientFunc() {
-	serviceName := "ai"
-	state := conns[serviceName].GetState()
+// RemoveMessage RemoveMessage
+func (mp *MessagePusherService) RemoveMessage() {
+	state := conns[MessagePusherServiceName].GetState()
 	if state.String() != "READY" {
-		conns[serviceName].Close()
-		setUpClientConn(serviceName)
+		conns[MessagePusherServiceName].Close()
+		setUpClientConn(MessagePusherServiceName)
 	}
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := clients[serviceName].SayHello(ctx, ai.HelloRequest)
+	r, err := messagePusherClient.DeliverRemoveMessage(ctx, mp.RemoveRequest)
 	log.Printf("SayHello called %d times", callIndex)
 	callIndex++
 	if err != nil {
-		log.Printf("could not call method on %s: %v", serviceName, err)
+		log.Printf("could not call method on %s: %v", MessagePusherServiceName, err)
 	} else {
-		log.Printf("call return: %s", r.GetMessage())
-	}
-	ai.checkCancelList()
-}
-
-func (ai *AiService) checkCancelList() {
-	if _, ok := schedule.OneTimeJobs[ai.jobID]; ok {
-		schedule.Cron.Remove(ai.jobID)
-		delete(schedule.OneTimeJobs, ai.jobID)
+		log.Printf("call return: %v", r.GetResult())
 	}
 }
