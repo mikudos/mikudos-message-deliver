@@ -18,6 +18,7 @@ build: proto
 
 .PHONY: docker
 docker:
+	make build
 	docker build . -t asia.gcr.io/kubenetes-test-project-249803/$(NAME):$(SERVICE_VERSION)
 
 .PHONY: run-docker
